@@ -22,6 +22,20 @@ import (
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+// +kubebuilder:subresource:status
+//+kubebuilder:object:root=true
+//+kubebuilder:subresource:status
+
+// Vhost is the Schema for the vhosts API
+type Vhost struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   VhostSpec   `json:"spec,omitempty"`
+	Status VhostStatus `json:"status,omitempty"`
+}
 
 // VhostSpec defines the desired state of Vhost
 type VhostSpec struct {
@@ -39,18 +53,7 @@ type VhostStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-
-// Vhost is the Schema for the vhosts API
-type Vhost struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   VhostSpec   `json:"spec,omitempty"`
-	Status VhostStatus `json:"status,omitempty"`
-}
-
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 //+kubebuilder:object:root=true
 
 // VhostList contains a list of Vhost
@@ -58,8 +61,4 @@ type VhostList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Vhost `json:"items"`
-}
-
-func init() {
-	SchemeBuilder.Register(&Vhost{}, &VhostList{})
 }

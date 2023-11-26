@@ -21,7 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	frontend "github.com/SUMMERLm/vhost/pkg/apis/frontend"
+	"github.com/SUMMERLm/vhost/pkg/apis/frontend"
 )
 
 // SchemeGroupVersion is group version used to register these objects

@@ -18,5 +18,5 @@ package frontend
 
 // GroupName is the group name used in this package
 const (
-	GroupName = "frontend.pml.com.cn"
+	GroupName = "frontends.pml.com.cn"
 )

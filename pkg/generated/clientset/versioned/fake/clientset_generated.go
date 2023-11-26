@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "github.com/SUMMERLm/vhost/pkg/generated/clientset/versioned"
-	frontendv1 "github.com/SUMMERLm/vhost/pkg/generated/clientset/versioned/typed/frontend/v1"
-	fakefrontendv1 "github.com/SUMMERLm/vhost/pkg/generated/clientset/versioned/typed/frontend/v1/fake"
+	frontendsv1 "github.com/SUMMERLm/vhost/pkg/generated/clientset/versioned/typed/frontend/v1"
+	fakefrontendsv1 "github.com/SUMMERLm/vhost/pkg/generated/clientset/versioned/typed/frontend/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -79,7 +79,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// FrontendV1 retrieves the FrontendV1Client
-func (c *Clientset) FrontendV1() frontendv1.FrontendV1Interface {
-	return &fakefrontendv1.FakeFrontendV1{Fake: &c.Fake}
+// FrontendsV1 retrieves the FrontendsV1Client
+func (c *Clientset) FrontendsV1() frontendsv1.FrontendsV1Interface {
+	return &fakefrontendsv1.FakeFrontendsV1{Fake: &c.Fake}
 }

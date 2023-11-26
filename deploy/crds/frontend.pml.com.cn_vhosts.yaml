@@ -1,0 +1,55 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.3
+  creationTimestamp: null
+  name: vhosts.frontend.pml.com.cn
+spec:
+  group: frontend.pml.com.cn
+  names:
+    kind: Vhost
+    listKind: VhostList
+    plural: vhosts
+    singular: vhost
+  scope: Namespaced
+  versions:
+    - name: v1
+      schema:
+        openAPIV3Schema:
+          description: Vhost is the Schema for the vhosts API
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: VhostSpec defines the desired state of Vhost
+              properties:
+                domainName:
+                  description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                  Important: Run "make" to regenerate code after modifying this file'
+                  type: string
+                pkgName:
+                  type: string
+              required:
+                - domainName
+                - pkgName
+              type: object
+            status:
+              description: VhostStatus defines the observed state of Vhost
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
