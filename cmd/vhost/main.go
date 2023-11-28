@@ -26,7 +26,6 @@ func main() {
 	stopCh := signals.SetupSignalHandler()
 	//本地调试，上线还原
 	cfg, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
-	//parentCfg, err := clientcmd.BuildConfigFromFlags(masterURL, kubeParentConfig)
 	//cfg, err := clientcmd.BuildConfigFromFlags("", "/conf/vhost/config")
 	if err != nil {
 		klog.Fatalf("Error building kubeconfig: %s", err.Error())

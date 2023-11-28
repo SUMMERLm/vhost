@@ -39,7 +39,6 @@ import (
 	"k8s.io/klog/v2"
 
 	vhostV1 "github.com/SUMMERLm/vhost/pkg/apis/frontend/v1"
-	//"github.com/lmxia/gaia/pkg/apis/apps/v1alpha1"
 	clientset "github.com/SUMMERLm/vhost/pkg/generated/clientset/versioned"
 	vhostscheme "github.com/SUMMERLm/vhost/pkg/generated/clientset/versioned/scheme"
 	informers "github.com/SUMMERLm/vhost/pkg/generated/informers/externalversions/frontend/v1"
@@ -207,7 +206,7 @@ func (c *Controller) processNextWorkItem() bool {
 }
 
 // syncHandler compares the actual state with the desired, and attempts to
-// converge the two. It then updates the Status block of the Foo resource
+// converge the two. It then updates the Status block of the vhost resource
 // with the current status of the resource.
 func (c *Controller) syncHandler(ctx context.Context, key string) error {
 	// Convert the namespace/name string into a distinct namespace and name
@@ -219,43 +218,51 @@ func (c *Controller) syncHandler(ctx context.Context, key string) error {
 		return nil
 	}
 
-	// Get the Foo resource with this namespace/name
-	foo, err := c.vhostsLister.Vhosts(namespace).Get(name)
+	// Get the vhost resource with this namespace/name
+	vhost, err := c.vhostsLister.Vhosts(namespace).Get(name)
 	if err != nil {
-		// The Foo resource may no longer exist, in which case we stop
+		// The vhost resource may no longer exist, in which case we stop
 		// processing.
 		if errors.IsNotFound(err) {
-			utilruntime.HandleError(fmt.Errorf("foo '%s' in work queue no longer exists", key))
+			utilruntime.HandleError(fmt.Errorf("vhost '%s' in work queue no longer exists", key))
 			return nil
 		}
-
 		return err
 	}
-
-	deploymentName := foo.Spec.PkgName
-	if deploymentName == "" {
+	vhostDel := vhost.DeletionTimestamp.IsZero()
+	if !vhostDel {
+		err = c.offLine(vhost)
+		if err != nil {
+			klog.Errorf("Failed to recycle cdn of 'Frontend' %q, error == %v", vhost.Name, err)
+			return err
+		}
+		return nil
+	}
+	pkgName := vhost.Spec.PkgName
+	domainName := vhost.Spec.DomainName
+	if pkgName == "" || domainName == "" {
 		// We choose to absorb the error here as the worker would requeue the
 		// resource otherwise. Instead, the next time the resource is updated
 		// the resource will be queued again.
-		utilruntime.HandleError(fmt.Errorf("%s: deployment name must be specified", key))
+		utilruntime.HandleError(fmt.Errorf("%s: pkgName and domainName must be specified", key))
 		return nil
 	}
-
 	// If an error occurs during Get/Create, we'll requeue the item so we can
 	// attempt processing again later. This could have been caused by a
 	// temporary network failure, or any other transient reason.
+	err = c.pkgManage(vhost)
 	if err != nil {
+		klog.Errorf("Failed to new pkg  of  %q, error == %v", vhost.Name, err)
 		return err
 	}
 
-	// If an error occurs during Update, we'll requeue the item so we can
-	// attempt processing again later. This could have been caused by a
-	// temporary network failure, or any other transient reason.
+	err = c.configManage(vhost)
 	if err != nil {
+		klog.Errorf("Failed to get cm state of  %q, error == %v", vhost.Name, err)
 		return err
 	}
 
-	c.recorder.Event(foo, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
+	c.recorder.Event(vhost, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 	return nil
 }
 
@@ -277,40 +284,39 @@ func (c *Controller) handleObject(obj interface{}) {
 	}
 	klog.V(4).Infof("Processing object: %s", object.GetName())
 	if ownerRef := metav1.GetControllerOf(object); ownerRef != nil {
-
 		return
 	}
 }
 
-// addVhost re-queues the Frontend for next scheduled time if there is a
+// addVhost re-queues the Vhost for next scheduled time if there is a
 // change in spec.schedule otherwise it re-queues it now
 func (c *Controller) addVhost(obj interface{}) {
-	frontend := obj.(*vhostV1.Vhost)
-	klog.V(4).Infof("adding Frontend %q", frontend)
-	c.enqueue(frontend)
+	vhost := obj.(*vhostV1.Vhost)
+	klog.V(4).Infof("adding Vhost %q", vhost)
+	c.enqueue(vhost)
 }
 
-// updateFrontend re-queues the Frontend for next scheduled time if there is a
+// updateVhost re-queues the Vhost for next scheduled time if there is a
 // change in spec otherwise it re-queues it now
 func (c *Controller) updateVhost(old, cur interface{}) {
-	oldFrontend := old.(*vhostV1.Vhost)
-	newFrontend := cur.(*vhostV1.Vhost)
+	oldVhost := old.(*vhostV1.Vhost)
+	newVhost := cur.(*vhostV1.Vhost)
 
 	// Decide whether discovery has reported a spec change.
-	if reflect.DeepEqual(oldFrontend.DeletionTimestamp, newFrontend.DeletionTimestamp) && reflect.DeepEqual(oldFrontend.Spec, newFrontend.Spec) {
-		klog.V(4).Infof("no updates on the spec of Frontend %q, skipping syncing", oldFrontend.Name)
+	if reflect.DeepEqual(oldVhost.DeletionTimestamp, newVhost.DeletionTimestamp) && reflect.DeepEqual(oldVhost.Spec, newVhost.Spec) {
+		klog.V(4).Infof("no updates on the spec of Vhost %q, skipping syncing", oldVhost.Name)
 		return
 	}
 
-	klog.V(4).Infof("updating Frontend %q", oldFrontend.Name)
-	c.enqueue(newFrontend)
+	klog.V(4).Infof("updating Vhost %q", oldVhost.Name)
+	c.enqueue(newVhost)
 }
 
-// enqueue takes a Frontend resource and converts it into a namespace/name
+// enqueue takes a Vhost resource and converts it into a namespace/name
 // string which is then put onto the work queue. This method should *not* be
-// passed resources of any type other than Frontend.
-func (c *Controller) enqueue(front *vhostV1.Vhost) {
-	key, err := cache.MetaNamespaceKeyFunc(front)
+// passed resources of any type other than Vhost.
+func (c *Controller) enqueue(vhost *vhostV1.Vhost) {
+	key, err := cache.MetaNamespaceKeyFunc(vhost)
 	if err != nil {
 		utilruntime.HandleError(err)
 		return

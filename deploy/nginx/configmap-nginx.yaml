@@ -1,0 +1,26 @@
+apiVersion: v1
+data:
+  test1.hyperosfront.com.conf: |-
+    server {
+         listen 80;
+         server_name test1.hyperosfrontend.com;
+         root /var/www/vhost/test1.hyperosfrontend.com;
+         index index.html;
+
+         location / {
+         }
+         }
+  test2.hyperosfront.com.conf: |-
+    server {
+         listen 80;
+         server_name test2.hyperosfrontend.com;
+         root /var/www/vhost/test2.hyperosfrontend.com;
+         index index.html;
+
+         location / {
+         }
+         }
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: default

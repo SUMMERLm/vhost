@@ -7,7 +7,10 @@ metadata:
     app.kubernetes.io/part-of: vhost
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: vhost
-  name: vhost-sample
+  name: test
+  namespace: gaia-frontend
+  finalizers:
+    - apps.gaia.io/vhostfinalizer
 spec:
-  pkgName: test
-  domainName: "test.foolishtoohungey.com"
+  pkgName: /pwd/of/test/testv1.gz
+  domainName: "foolishtoohungey.com"

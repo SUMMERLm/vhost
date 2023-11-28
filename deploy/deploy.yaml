@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vhostmanage
+  namespace: gaia-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vhost
+  template:
+    metadata:
+      labels:
+        app: vhost
+      name: vhost
+    spec:
+      containers:
+        - image:  /pwd/of/vhost/url/vhost
+          imagePullPolicy: IfNotPresent
+          name: vhost
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/www/vhost
+              name: vhosts
+              readOnly: true
+      dnsPolicy: ClusterFirst
+      hostNetwork: true
+      nodeSelector:
+        frontend: testfrontend
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /var/www/hyperos/
+            type: Directory
+          name: vhosts
+
+
