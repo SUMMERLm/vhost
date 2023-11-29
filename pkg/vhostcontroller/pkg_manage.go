@@ -135,9 +135,6 @@ func (c *Controller) pkgOnlineTest(vhost *vhostV1.Vhost, pathOfPkg string) error
 	}
 	gzipWriter.Flush()
 	klog.V(4).Infof("Total length: %d", written)
-
-	//unzip到当前目录
-
 	return nil
 }
 
@@ -150,36 +147,6 @@ func (c *Controller) pkgOnline(vhost *vhostV1.Vhost, pathOfPkg string) error {
 		return err
 	}
 	return nil
-	//vhostPkgFileName := path.Base(pkgUrl)
-	//res, err := http.Get(pkgUrl)
-	//if err != nil {
-	//	klog.Errorf("Failed to download file from url %q, error == %v", pkgUrl, err)
-	//	return err
-	//}
-	//defer res.Body.Close()
-	//// 获得get请求响应的reader对象
-	//reader := bufio.NewReaderSize(res.Body, 32*1024)
-	////路径优化：对齐基本目录+包名称
-	//zippedFile, err := os.Create(pathOfPkg + vhostPkgFileName)
-	//if err != nil {
-	//	klog.Errorf("Failed to create file %q, error == %v", vhostPkgFileName, err)
-	//	return err
-	//}
-	//defer zippedFile.Close()
-	////zipWriter := zip.NewWriter(zippedFile)
-	////defer zipWriter.Close()
-	//// 获得文件的writer对象
-	//written, err := io.Copy(zippedFile, reader)
-	//if err != nil {
-	//	klog.Errorf("Failed to copy file %q, error == %v", vhostPkgFileName, err)
-	//	return err
-	//}
-	////zippedFile.Flush()
-	//klog.V(4).Infof("Total length: %d", written)
-	//
-	////unzip到当前目录
-	//
-	//return nil
 }
 
 func (c *Controller) gzipManage(vhost *vhostV1.Vhost, pathOfPkg string) error {

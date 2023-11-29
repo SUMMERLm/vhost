@@ -14,5 +14,7 @@ const (
 	FrontendAliyunCdnPkgBasePath   = "/etc/hyperos/frontend/"
 
 	FrontendAliyunCdnPkgManageUrl = "http://ip+port/downloadFiles?"
-	FrontendAliyunCdnVhostName    = "gaia-frontend"
+	FrontendAliyunCdnVhostName    = "nginx-config"
+
+	FrontendAliyunVhostFinalizers = "apps.gaia.io/vhostfinalizer"
 )

@@ -1,14 +1,14 @@
 module github.com/SUMMERLm/vhost
 
-go 1.21.3
+go 1.20
 
 require (
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20231116154738-5dd06bb2938b
-	k8s.io/api v0.28.4
-	k8s.io/apimachinery v0.28.4
-	k8s.io/client-go v0.28.4
-	k8s.io/code-generator v0.28.4
-	k8s.io/klog/v2 v2.100.1
+	k8s.io/api v0.26.1
+	k8s.io/apimachinery v0.26.1
+	k8s.io/client-go v0.26.1
+	k8s.io/code-generator v0.23.5
+	k8s.io/klog/v2 v2.80.1
 )
 
 require (
