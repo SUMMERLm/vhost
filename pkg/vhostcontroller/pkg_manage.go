@@ -23,17 +23,18 @@ func (c *Controller) pkgState(vhost *vhostV1.Vhost) (string, bool, bool, error) 
 	//不存在，则返回state：NoExist
 	//文件夹是否存在
 	//存在情况下，文件夹是否为空
-	path := common.FrontendAliyunCdnPkgBasePath + vhost.Name + "." + vhost.Spec.DomainName + ".conf/"
+	//path := common.FrontendAliyunCdnPkgBasePath + vhost.Name + "." + vhost.Spec.DomainName + ".conf/"
+	path := common.FrontendAliyunCdnVhostBasePath + vhost.Name + "." + vhost.Spec.DomainName
 	pathExist, err := c.pathExists(path)
 	if err != nil {
 		klog.Errorf("Failed to judge path exist status %q, error == %v", path, err)
-		return "", false, false, err
+		return path, false, false, err
 	}
 
 	pathIsEmpty, err := c.isEmpty(path)
 	if err != nil {
 		klog.Errorf("Failed to judge path empty status  %q, error == %v", path, err)
-		return "", false, false, err
+		return path, false, false, err
 	}
 	return path, pathExist, pathIsEmpty, nil
 }
@@ -70,7 +71,7 @@ func (c *Controller) pkgManage(vhost *vhostV1.Vhost) error {
 	path, pathExist, pathIsEmpty, err := c.pkgState(vhost)
 	if err != nil {
 		klog.Errorf("Failed to get pkg state of  %q, error == %v", vhost.Name, err)
-		return err
+//		return err
 	}
 	if pathExist && !pathIsEmpty {
 		//路径存在，非空文件夹
@@ -92,7 +93,7 @@ func (c *Controller) pkgManage(vhost *vhostV1.Vhost) error {
 		}
 	} else if !pathExist {
 		//路径不存在,创建该路径
-		err = os.Mkdir(path, os.ModePerm)
+		err = os.MkdirAll(path, os.ModePerm)
 		if err != nil {
 			klog.Errorf("Failed to mkdir  %q, error == %v", path, err)
 			return err
@@ -231,7 +232,7 @@ func (c *Controller) pkgUpdate(vhost *vhostV1.Vhost) error {
 func (c *Controller) pkgRecycle(vhost *vhostV1.Vhost) error {
 	//删除包
 	//按需进行包删除，将相关包进行删除（deploy的volume映射管理）
-	fileDir := common.FrontendAliyunCdnPkgBasePath
+	fileDir := common.FrontendAliyunCdnVhostBasePath
 	vhostPkgFileName := vhost.Name + "." + common.FrontendAliyunFrontendDomainBase
 	_, err := os.Open(fileDir + vhostPkgFileName)
 	//非空处理
@@ -239,7 +240,7 @@ func (c *Controller) pkgRecycle(vhost *vhostV1.Vhost) error {
 		klog.Errorf("Failed to open file %q, error == %v", vhostPkgFileName, err)
 	}
 	// 删除指定目录下指定文件
-	err = os.Remove(fileDir + vhostPkgFileName)
+	err = os.RemoveAll(fileDir + vhostPkgFileName+"/")
 	if err != nil {
 		klog.Errorf("Failed to remove file %q, error == %v", vhostPkgFileName, err)
 		return err

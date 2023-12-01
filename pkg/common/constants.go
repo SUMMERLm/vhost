@@ -11,8 +11,8 @@ const (
 	FrontendAliyunCMNoExist          = false
 	FrontendAliyunFrontendDomainBase = "foolishtoohungry.com"
 
-	//FrontendAliyunCdnVhostBasePath = "/var/www/hyperos/"
-	FrontendAliyunCdnPkgBasePath = "/var/www/hyperos/frontend/"
+	FrontendAliyunCdnVhostBasePath = "/var/www/vhost/"
+	FrontendAliyunCdnPkgBasePath = "/var/www/vhost/frontend/"
 
 	FrontendAliyunCdnPkgManageUrl = "http://127.0.0.1:8000/front/pkg/downloadFiles"
 	FrontendAliyunCdnVhostName    = "nginx-config"
