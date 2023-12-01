@@ -94,7 +94,7 @@ func (c *Controller) configVhost(vhost *vhostV1.Vhost) error {
 			}
 		}
 		datamap = gonginx.DumpBlock(cc.Block, gonginx.IndentedStyle)
-		configmap.Data[frontendDomainName] = datamap
+		configmap.Data[frontendDomainName+".conf"] = datamap
 		_, err := c.kubeclientset.CoreV1().ConfigMaps(vhost.Namespace).Update(context.TODO(), configmap, metav1.UpdateOptions{})
 		if err != nil {
 			klog.Errorf("Failed to update  configmap of vhost %q, error == %v", vhost.Name, err)

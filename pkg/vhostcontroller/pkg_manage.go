@@ -23,7 +23,7 @@ func (c *Controller) pkgState(vhost *vhostV1.Vhost) (string, bool, bool, error) 
 	//不存在，则返回state：NoExist
 	//文件夹是否存在
 	//存在情况下，文件夹是否为空
-	path := common.FrontendAliyunCdnPkgBasePath + vhost.Name + "." + vhost.Spec.DomainName + "/"
+	path := common.FrontendAliyunCdnPkgBasePath + vhost.Name + "." + vhost.Spec.DomainName + ".conf/"
 	pathExist, err := c.pathExists(path)
 	if err != nil {
 		klog.Errorf("Failed to judge path exist status %q, error == %v", path, err)
@@ -73,7 +73,7 @@ func (c *Controller) pkgManage(vhost *vhostV1.Vhost) error {
 		return err
 	}
 	if pathExist && !pathIsEmpty {
-		//路径存在，空文件夹
+		//路径存在，非空文件夹
 		err = os.RemoveAll(path)
 		if err != nil {
 			klog.Errorf("Failed to remove path: %q, error == %v", path, err)
@@ -108,7 +108,7 @@ func (c *Controller) pkgManage(vhost *vhostV1.Vhost) error {
 
 func (c *Controller) pkgOnlineTest(vhost *vhostV1.Vhost, pathOfPkg string) error {
 	//pkgName包括了包的路径。如 /hyperos/usersystem/user.gz
-	pkgUrl := common.FrontendAliyunCdnPkgManageUrl + vhost.Spec.PkgName
+	pkgUrl := common.FrontendAliyunCdnPkgManageUrl + "?" + vhost.Spec.PkgName
 	vhostPkgFileName := path.Base(pkgUrl)
 	res, err := http.Get(pkgUrl)
 	if err != nil {
@@ -151,7 +151,11 @@ func (c *Controller) pkgOnline(vhost *vhostV1.Vhost, pathOfPkg string) error {
 
 func (c *Controller) gzipManage(vhost *vhostV1.Vhost, pathOfPkg string) error {
 	//url := "https://example.com/archive.zip"
-	url := common.FrontendAliyunCdnPkgManageUrl + vhost.Spec.PkgName
+	//vhost.Spec.PkgName=/pwd/of/vhost/test1.zip
+	//http://172.24.33.35:8000/downloadFiles?filedir=/root/frontpkgmanage&filename=go1.18.10.darwin-arm64.tar.gz
+	vhostPkgFileName := path.Base(vhost.Spec.PkgName)
+	vhostPkgDir := path.Dir(vhost.Spec.PkgName)
+	url := common.FrontendAliyunCdnPkgManageUrl + "?fileDir=" + vhostPkgDir + "&fileName=" + vhostPkgFileName
 	//outputDir := "./output"
 	outputDir := pathOfPkg
 	// 创建输出目录
@@ -199,7 +203,6 @@ func (c *Controller) gzipManage(vhost *vhostV1.Vhost, pathOfPkg string) error {
 		// 打开 zip 文件中的文件
 		reader, err := file.Open()
 		if err != nil {
-			fmt.Println("打开文件失败:", err)
 			klog.Errorf("Failed to open file %q, error == %v", vhost.Name, err)
 
 			return err
@@ -209,14 +212,12 @@ func (c *Controller) gzipManage(vhost *vhostV1.Vhost, pathOfPkg string) error {
 		// 复制文件内容到输出文件中
 		_, err = io.Copy(writer, reader)
 		if err != nil {
-			fmt.Println("复制文件内容失败:", err)
 			klog.Errorf("Failed to copy file %q, error == %v", vhost.Name, err)
 
 			return err
 		}
 	}
 
-	fmt.Println("下载和解压缩完成!")
 	klog.Info("download and unzip success of vhost: %q", vhost.Name)
 
 	return nil
@@ -230,15 +231,15 @@ func (c *Controller) pkgUpdate(vhost *vhostV1.Vhost) error {
 func (c *Controller) pkgRecycle(vhost *vhostV1.Vhost) error {
 	//删除包
 	//按需进行包删除，将相关包进行删除（deploy的volume映射管理）
-	fileDir := common.FrontendAliyunCdnVhostBasePath
-	vhostPkgFileName := vhost.Spec.PkgName
-	_, err := os.Open(fileDir + "/" + vhostPkgFileName)
+	fileDir := common.FrontendAliyunCdnPkgBasePath
+	vhostPkgFileName := vhost.Name + "." + common.FrontendAliyunFrontendDomainBase
+	_, err := os.Open(fileDir + vhostPkgFileName)
 	//非空处理
 	if err != nil {
 		klog.Errorf("Failed to open file %q, error == %v", vhostPkgFileName, err)
 	}
 	// 删除指定目录下指定文件
-	err = os.Remove(fileDir + "/" + vhostPkgFileName)
+	err = os.Remove(fileDir + vhostPkgFileName)
 	if err != nil {
 		klog.Errorf("Failed to remove file %q, error == %v", vhostPkgFileName, err)
 		return err

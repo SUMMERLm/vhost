@@ -54,6 +54,6 @@ spec:
             name: nginx-config
           name: nginx-config
         - hostPath:
-            path: /var/www/hyperos/
+            path: /var/www/hyperos/frontend/
             type: Directory
           name: vhosts
