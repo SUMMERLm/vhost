@@ -1,0 +1,10 @@
+apiVersion: frontend.pml.com.cn/v1
+kind: Vhost
+metadata:
+  finalizers:
+  - apps.gaia.io/vhostfinalizer
+  name: fronttest1
+  namespace: gaia-frontend
+spec:
+  domainName: foolishtoohungry.com
+  pkgName: /lmmtest/test1/test2.zip

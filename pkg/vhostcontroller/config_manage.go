@@ -120,7 +120,7 @@ func (c *Controller) configRecycle(vhost *vhostV1.Vhost) error {
 		klog.Errorf("Failed to get configmap of vhost %q, error == %v", vhost.Name, err)
 		return err
 	}
-	frontendDomainName := vhost.Name + "." + vhost.Spec.DomainName
+	frontendDomainName := vhost.Name + "." + vhost.Spec.DomainName+".conf"
 	_, ok := configmap.Data[frontendDomainName]
 	if ok {
 		delete(configmap.Data, frontendDomainName)
