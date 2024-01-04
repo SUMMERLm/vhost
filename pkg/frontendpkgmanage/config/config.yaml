@@ -1,0 +1,7 @@
+server:
+  run_mode: debug
+  addr: :8009
+frontEnd:
+  pkgPath: /etc/hyperos/frontend
+  pkgPath1: /Users/lumingming/hyperos/frontend
+  vhostPath: /var/www/hyperos/

@@ -23,7 +23,6 @@ func (c *Controller) pkgState(vhost *vhostV1.Vhost) (string, bool, bool, error) 
 	//不存在，则返回state：NoExist
 	//文件夹是否存在
 	//存在情况下，文件夹是否为空
-	//path := common.FrontendAliyunCdnPkgBasePath + vhost.Name + "." + vhost.Spec.DomainName + ".conf/"
 	path := common.FrontendAliyunCdnVhostBasePath + vhost.Name + "." + vhost.Spec.DomainName
 	pathExist, err := c.pathExists(path)
 	if err != nil {
@@ -71,7 +70,6 @@ func (c *Controller) pkgManage(vhost *vhostV1.Vhost) error {
 	path, pathExist, pathIsEmpty, err := c.pkgState(vhost)
 	if err != nil {
 		klog.Errorf("Failed to get pkg state of  %q, error == %v", vhost.Name, err)
-//		return err
 	}
 	if pathExist && !pathIsEmpty {
 		//路径存在，非空文件夹
@@ -240,7 +238,7 @@ func (c *Controller) pkgRecycle(vhost *vhostV1.Vhost) error {
 		klog.Errorf("Failed to open file %q, error == %v", vhostPkgFileName, err)
 	}
 	// 删除指定目录下指定文件
-	err = os.RemoveAll(fileDir + vhostPkgFileName+"/")
+	err = os.RemoveAll(fileDir + vhostPkgFileName)
 	if err != nil {
 		klog.Errorf("Failed to remove file %q, error == %v", vhostPkgFileName, err)
 		return err
